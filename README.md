@@ -14,6 +14,20 @@ An Arduino-based embedded system that balances a robotic bike using real-time PI
 - `telemetry_plot.py`: Real-time telemetry
 - `PID_tuning.m`: MATLAB script for controller tuning
 
-## Future Work
+## Future Work 
 - Kalman filter integration
 - Remote control via RF24 or Bluetooth
+
+## Requirements
+1.)Arduino Uno/Nano
+
+2.)MPU6050 Sensor
+
+3.)Dual motor driver (L298N or similar)
+
+4.)BO Motors (or equivalent)
+
+5.)USB Cable for Serial
+
+6.)Python + pyserial + matplotlib for telemetry
+
