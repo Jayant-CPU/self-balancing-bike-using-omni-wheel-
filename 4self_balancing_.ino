@@ -1,5 +1,5 @@
 #include <SPI.h>
-//#include <RF24.h>
+
 #include <Wire.h>
 #include <MPU6050_light.h>
 
@@ -23,14 +23,14 @@ unsigned long prevTime = 0;
 
 ///////////////////////////////////////////////////////////// PID TUNING ///////////////////////////////////////////////////////////////////
 // PID parameters
-double Kp = 50 ;    // Proportional gain max=300 min=50 good=100,150 ------------>50
-double Ki = 100;      // Integral gain  //0--------max200       correct - 100--------------->100
-double Kd = 5;    // Derivative gain  max=10    correct - 5 -------------->5
+double Kp = 50 ;   
+double Ki = 100;     
+double Kd = 5;   
 
 // PID parameters for yaw
-double Kp_yaw = 15 ;  // Proportional gain for yaw max=60 min=  5 -------------->15
-double Ki_yaw = 5;  // Integral gain for yaw----------max100 -------------->5
-double Kd_yaw = 5; // Derivative gain for yaw // max=50 ------------------->5
+double Kp_yaw = 15 ;  
+double Ki_yaw = 5;  
+double Kd_yaw = 5; 
 ///////////////////////////////////////////////////////// VARIABLE INITIALIZATION /////////////////////////////////////////////////////////////////////////
 double targetroll = 0;
 double targetYaw = 0; 
@@ -78,7 +78,7 @@ void executeCommand(char command) {
       digitalWrite(boMotorPin1, HIGH);
       digitalWrite(boMotorPin2, LOW);
       
-//      Serial.println(msg_1);
+      Serial.println(msg_1);
       break;
     case 'B':
       // Backward command
@@ -86,21 +86,21 @@ void executeCommand(char command) {
       digitalWrite(boMotorPin1, LOW);
       digitalWrite(boMotorPin2, HIGH);
       
-//      Serial.println(msg_1);
+      Serial.println(msg_1);
       break;
-//    case 'L':
-//      targetYaw += 2 ; 
-//      delay(5);
-//      break;
-//    case 'R':
-//      targetYaw -= 2; 
-//      delay(5);
-//      break;
+    case 'L':
+     targetYaw += 2 ; 
+      delay(5);
+      break;
+    case 'R':
+      targetYaw -= 2; 
+      delay(5);
+      break;
     case 'S':
       digitalWrite(boMotorPin1, LOW);
       digitalWrite(boMotorPin2, LOW);
 
-//      Serial.println(msg_1);
+      Serial.println(msg_1);
       break;
   }
 }
@@ -119,31 +119,30 @@ void pid(){
   // Calculate Yaw PID error
   double yawError = targetYaw - yaw;
 
-  // Update integral terms for Roll and Yaw (multiply by dt)
   integral += rollError * dt;
-//  integral = constrain(integral, -100, 100); // Prevent integral windup
+
 
   integralYaw += yawError * dt;
-//  integralYaw = constrain(integralYaw, -100, 100); // Prevent integral windup
 
-  // Calculate derivative terms for Roll and Yaw (divide by dt)
+
+  
   double derivative = (rollError - previousError) / dt;
   double derivativeYaw = (yawError - previousYawError) / dt;
 
-  // Calculate Roll PID output
+  
   double output = Kp * rollError + Ki * integral + Kd * derivative;
 
-  // Calculate Yaw PID output
+  
   double yawOutput = Kp_yaw * yawError + Ki_yaw * integralYaw + Kd_yaw * derivativeYaw;
 
-  // Combine Roll and Yaw PID outputs (adjust weights as needed)
+  
   double combinedOutput = output + yawOutput;
 
-  // Map combined PID output to motor speed
+  
   motorSpeed = map(combinedOutput, -90, 90, -255, 255);
-  // Constrain motor speed
+  
   motorSpeed = constrain(motorSpeed, -255, 255);
-//  Serial.println(motorSpeed);
+  Serial.println(motorSpeed);
 
   // Motor control based on combined PID output for the main motor
   if (motorSpeed > 0) {
@@ -154,25 +153,25 @@ void pid(){
     digitalWrite(motorPin2, HIGH);
   }
 
-  // Set motor speed using PWM for the main motor
+  
   analogWrite(enablePin1, 250);
-//  Serial.println(combinedOutput);
-  // Update previous errors for Roll and Yaw
+  Serial.println(combinedOutput);
+   Update previous errors for Roll and Yaw
   previousError = rollError;
   previousYawError = yawError;
 }
 void loop() {
-     //Call PID control function at 50 ms intervals
-  if (millis() - timer >= 30) {  //40, -------------->30
+    
+  if (millis() - timer >= 30) {  
     timer = millis();
     pid();
   }
   
-//  if (radio.available()) {
-//    radio.read(&msg_1, sizeof(msg_1));
-//    Serial.println(msg_1);
-//    analogWrite(boEnablePin, 200);
-//    executeCommand(msg_1);
-//  }
+  if (radio.available()) {
+    radio.read(&msg_1, sizeof(msg_1));
+    Serial.println(msg_1);
+    analogWrite(boEnablePin, 200);
+    executeCommand(msg_1);
+  }
 
 }
