@@ -3,10 +3,10 @@
 #include <Wire.h>
 #include <MPU6050_light.h>
 
-//RF24 radio(10, 8);
+RF24 radio(10, 8);
 
-//const byte add_1 = 5;
-//char msg_1;
+const byte add_1 = 5;
+char msg_1;
 
 MPU6050 mpu(Wire);
 
@@ -17,9 +17,9 @@ unsigned long prevTime = 0;
 #define enablePin1 6
 #define motorPin2 A3
 
-#define boMotorPin1 9   // Replace with your actual BO motor control pin
-#define boEnablePin 5   // Replace with your actual BO motor enable pin
-#define boMotorPin2 4    // Replace with your actual BO motor control pin
+#define boMotorPin1 9   
+#define boEnablePin 5 
+#define boMotorPin2 4    
 
 ///////////////////////////////////////////////////////////// PID TUNING ///////////////////////////////////////////////////////////////////
 // PID parameters
@@ -40,34 +40,33 @@ double previousYawError = 0;
 double integral = 0;
 double integralYaw = 0;
 
-// Motor control variables
+
 int motorSpeed = 0;
 
 void setup() {
   Serial.begin(9600);
-  Wire.begin(); // Initialize the Wire library
-  mpu.begin();  // Initialize the MPU6050
-//  radio.begin();
+  Wire.begin(); 
+  mpu.begin();  
+  radio.begin();
   
-  mpu.calcOffsets(); // gyro and accelerometer calibration
-
-  // Initialize motor control pins for the main motor
+  mpu.calcOffsets(); 
+  
   pinMode(motorPin1, OUTPUT);
   pinMode(motorPin2, OUTPUT);
   pinMode(enablePin1, OUTPUT);
 
-  // Initialize motor control pins for the BO motor (if used)
+  
   pinMode(boMotorPin1, OUTPUT);
   pinMode(boMotorPin2, OUTPUT);
   pinMode(boEnablePin, OUTPUT);
   digitalWrite(boMotorPin1, LOW);
   digitalWrite(boMotorPin2, LOW);
   
-//  radio.openReadingPipe(1, add_1);
-//// Set data rate to RF24_250KBPS, RF24_1MBPS, or RF24_2MBPS
-//  radio.setDataRate(RF24_2MBPS); // Adjust the data rate as needed
-//  radio.setPALevel(RF24_PA_MIN);
-//  radio.startListening();
+  radio.openReadingPipe(1, add_1);
+ Set data rate to RF24_250KBPS, RF24_1MBPS, or RF24_2MBPS
+  radio.setDataRate(RF24_2MBPS);
+  radio.setPALevel(RF24_PA_MIN);
+  radio.startListening();
 }
 
 void executeCommand(char command) {
@@ -106,17 +105,17 @@ void executeCommand(char command) {
 }
 void pid(){
   unsigned long currentTime = millis();
-  double dt = (currentTime - prevTime) / 1000.0; // Calculate time step in seconds
+  double dt = (currentTime - prevTime) / 1000.0; 
   prevTime = currentTime;
 
   mpu.update();
   double roll = mpu.getAngleX();
-  double yaw = mpu.getAngleZ(); // Assuming Z axis corresponds to Yaw
+  double yaw = mpu.getAngleZ(); //  Z axis corresponds to Yaw
    
-  // Calculate Roll PID error
+
   double rollError = targetroll - roll;
 
-  // Calculate Yaw PID error
+  
   double yawError = targetYaw - yaw;
 
   integral += rollError * dt;
@@ -175,3 +174,6 @@ void loop() {
   }
 
 }
+
+
+
